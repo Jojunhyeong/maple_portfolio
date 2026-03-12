@@ -5,11 +5,12 @@ import { projects, Project } from "@/data/projects";
 
 interface CharacterSelectScreenProps {
   onBack: () => void;
+  onSelectProject: (project: Project) => void;
 }
 
 const PROJECTS_PER_PAGE = 6;
 
-export default function CharacterSelectScreen({ onBack }: CharacterSelectScreenProps) {
+export default function CharacterSelectScreen({ onBack, onSelectProject }: CharacterSelectScreenProps) {
   const [selected, setSelected] = useState<Project>(projects[0]);
   const [page, setPage] = useState(0);
 
@@ -158,7 +159,7 @@ export default function CharacterSelectScreen({ onBack }: CharacterSelectScreenP
           {/* 아이콘 + 이름 */}
           <div className="text-center">
             <div className="text-5xl mb-1">{selected.icon}</div>
-            <p className="text-gray-800 font-black text-base">{selected.name}</p>
+            <p className="text-gray-800 font-black text-base">{selected.title}</p>
             <p className="text-gray-400 text-xs">{selected.jobClass}</p>
           </div>
 
@@ -174,7 +175,7 @@ export default function CharacterSelectScreen({ onBack }: CharacterSelectScreenP
           <div>
             <p className="text-gray-500 text-xs mb-1.5">기술 스택</p>
             <div className="flex flex-wrap gap-1">
-              {selected.techStack.map((tech) => (
+              {Object.values(selected.tech).flat().map((tech: string) => (
                 <span
                   key={tech}
                   className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
@@ -187,26 +188,22 @@ export default function CharacterSelectScreen({ onBack }: CharacterSelectScreenP
           </div>
 
           {/* 설명 */}
-          <p className="text-gray-600 text-[11px] leading-relaxed">{selected.description}</p>
+          <p className="text-gray-600 text-[11px] leading-relaxed">{selected.subtitle}</p>
 
           <div className="h-px bg-gray-200" />
 
           {/* 버튼들 */}
           <div className="flex flex-col gap-2">
-            {selected.live && (
+            <button
+              onClick={() => onSelectProject(selected)}
+              className="w-full py-2 rounded-lg text-white text-xs font-black text-center transition-all hover:scale-105"
+              style={{ background: `linear-gradient(135deg, ${selected.color}, ${selected.color}bb)` }}
+            >
+              🎮 자세히 보기
+            </button>
+            {selected.links.repo && (
               <a
-                href={selected.live}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2 rounded-lg text-white text-xs font-black text-center transition-all hover:scale-105"
-                style={{ background: "linear-gradient(135deg, #4A90E2, #2D6BB5)" }}
-              >
-                🎮 게임 시작 (라이브)
-              </a>
-            )}
-            {selected.github && (
-              <a
-                href={selected.github}
+                href={selected.links.repo}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2 rounded-lg text-xs font-black text-center transition-all hover:scale-105 border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -320,7 +317,7 @@ function PlatformRow({
               className="text-white text-[11px] font-black truncate drop-shadow"
               style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
             >
-              {project.name}
+              {project.title}
             </p>
             <p
               className="text-[10px] font-bold drop-shadow"
