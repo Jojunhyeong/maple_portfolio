@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { projects, Project } from "@/data/projects";
 
 interface CharacterSelectScreenProps {
@@ -10,342 +11,296 @@ interface CharacterSelectScreenProps {
 
 const PROJECTS_PER_PAGE = 6;
 
+const levelColor = (level: number) => {
+  if (level >= 200) return "#FF6B35";
+  if (level >= 170) return "#FFD700";
+  if (level >= 140) return "#34C759";
+  return "#A78BFA";
+};
+
+const formatPower = (power: number) =>
+  power >= 10000 ? `${Math.floor(power / 10000)}만 ${(power % 10000).toLocaleString()}` : power.toLocaleString();
+
+
 export default function CharacterSelectScreen({ onBack, onSelectProject }: CharacterSelectScreenProps) {
   const [selected, setSelected] = useState<Project>(projects[0]);
   const [page, setPage] = useState(0);
 
   const totalPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
-  const currentProjects = projects.slice(
-    page * PROJECTS_PER_PAGE,
-    (page + 1) * PROJECTS_PER_PAGE
-  );
-
-  // 상단 6칸, 하단 6칸 (MapleStory 2줄 플랫폼 구조)
-  const topRow = currentProjects.slice(0, 3);
-  const bottomRow = currentProjects.slice(3, 6);
-
-  const levelColor = (level: number) => {
-    if (level >= 250) return "#FF6B35";
-    if (level >= 200) return "#FFD700";
-    if (level >= 150) return "#4ADE80";
-    if (level >= 100) return "#60A5FA";
-    return "#A78BFA";
-  };
-
-  const formatPower = (power: number) => {
-    if (power >= 10000) return `${(power / 10000).toFixed(0)}만`;
-    return power.toLocaleString();
-  };
+  const pageProjects = projects.slice(page * PROJECTS_PER_PAGE, (page + 1) * PROJECTS_PER_PAGE);
+  const topRow    = pageProjects.slice(0, 3);
+  const bottomRow = pageProjects.slice(3, 6);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      {/* ─── 배경: 하늘 + 언덕 ─── */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(180deg, #87CEEB 0%, #B8DFFF 45%, #D4EFFF 65%, #8BC34A 65%, #5D9E2B 75%, #3D7520 100%)",
-        }}
-      />
+    <div className="relative h-screen w-full overflow-hidden select-none">
 
-      {/* 구름 */}
-      <Cloud x={8} y={8} scale={1.2} />
-      <Cloud x={30} y={5} scale={0.8} />
-      <Cloud x={55} y={10} scale={1.0} />
-      <Cloud x={75} y={6} scale={1.4} />
+      {/* ── 배경: 하늘 + 빛줄기 + 언덕 ── */}
+      <div className="absolute inset-0" style={{
+        background: "linear-gradient(180deg, #5DADE2 0%, #85C1E9 25%, #AED6F1 50%, #D6EAF8 62%, #7DCEA0 62%, #52BE80 72%, #27AE60 82%, #1E8449 100%)"
+      }} />
+      {/* 햇빛 */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse 60% 50% at 50% -10%, rgba(255,245,180,0.45) 0%, transparent 70%)"
+      }} />
+      {/* 원거리 언덕 (밝은) */}
+      <div className="absolute pointer-events-none" style={{
+        bottom: "37%", left: 0, right: 0, height: "12%",
+        background: "linear-gradient(180deg, #A9DFBF 0%, #82E0AA 100%)",
+        clipPath: "ellipse(60% 100% at 30% 100%)",
+        opacity: 0.5
+      }} />
+      <div className="absolute pointer-events-none" style={{
+        bottom: "37%", left: 0, right: 0, height: "10%",
+        background: "linear-gradient(180deg, #A9DFBF 0%, #82E0AA 100%)",
+        clipPath: "ellipse(55% 100% at 75% 100%)",
+        opacity: 0.4
+      }} />
+      {/* 구름들 */}
+      <Cloud x={5}  y={7}  w={120} />
+      <Cloud x={28} y={4}  w={90}  />
+      <Cloud x={52} y={9}  w={110} />
+      <Cloud x={74} y={5}  w={100} />
 
-      {/* 이벤트 배너 (MapleStory 상단 공지 스타일) */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex gap-3">
-        <div
-          className="rounded-full px-5 py-1.5 text-xs font-black text-white shadow-lg"
-          style={{ background: "linear-gradient(135deg, #FF8C00, #FFA500)" }}
-        >
-          🔥 프로젝트 레벨업 진행중!
-        </div>
-        <div
-          className="rounded-full px-5 py-1.5 text-xs font-black text-white shadow-lg"
-          style={{ background: "linear-gradient(135deg, #228B22, #32CD32)" }}
-        >
-          ⭐ 신규 프로젝트 추가 예정
-        </div>
+      {/* ── 상단 이벤트 배너 ── */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex gap-2.5">
+        {[
+          { text: "1+4 레벨업! 하이퍼버닝 MAX 지정", bg: "linear-gradient(135deg,#F39C12,#E67E22)" },
+          { text: "신규 프로젝트 추가 예정!",           bg: "linear-gradient(135deg,#27AE60,#1E8449)" },
+        ].map(b => (
+          <div key={b.text} className="rounded-full px-5 py-1.5 text-white text-xs font-black shadow-lg"
+            style={{ background: b.bg, textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
+            {b.text}
+          </div>
+        ))}
       </div>
 
-      {/* ─── 메인 컨텐츠 ─── */}
-      <div className="absolute inset-0 flex pt-14 pb-12 px-4 gap-4">
+      {/* ── 메인 레이아웃 ── */}
+      <div className="absolute inset-0 flex pt-12 pb-11 px-4 gap-4">
 
-        {/* ─── 왼쪽: 캐릭터(프로젝트) 선택 ─── */}
-        <div className="flex-1 flex flex-col justify-center gap-4 relative">
+        {/* ── 왼쪽: 플랫폼 + 캐릭터 ── */}
+        <div className="flex-1 flex flex-col justify-center gap-6 relative">
 
-          {/* 큰 나무 (배경 장식) */}
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 opacity-20 pointer-events-none select-none"
-            style={{ zIndex: 0 }}
-          >
-            <div
-              className="mx-auto w-8 h-48"
-              style={{ background: "linear-gradient(180deg, #5C3D1E, #3D2710)" }}
-            />
-            <div
-              className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full"
-              style={{ background: "radial-gradient(circle, #4CAF50, #2E7D32)" }}
-            />
+          {/* 큰 나무 기둥 (CSS) */}
+          <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-0" style={{ top: "8%", bottom: "18%" }}>
+            <div className="w-12 h-full mx-auto rounded-sm" style={{
+              background: "linear-gradient(90deg, #5D3A1A 0%, #7B4F2A 40%, #6B4020 70%, #4A2C10 100%)",
+              boxShadow: "inset -4px 0 8px rgba(0,0,0,0.3)"
+            }} />
           </div>
 
-          {/* 상단 플랫폼 + 캐릭터들 */}
-          <PlatformRow
-            projects={topRow}
-            selected={selected}
-            onSelect={setSelected}
-            levelColor={levelColor}
-          />
-
-          {/* 하단 플랫폼 + 캐릭터들 */}
-          <PlatformRow
-            projects={bottomRow}
-            selected={selected}
-            onSelect={setSelected}
-            levelColor={levelColor}
-          />
+          {/* 플랫폼 행 */}
+          <PlatformRow projects={topRow}    selected={selected} onSelect={setSelected} levelColor={levelColor} />
+          <PlatformRow projects={bottomRow} selected={selected} onSelect={setSelected} levelColor={levelColor} />
 
           {/* 페이지네이션 */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <button
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="w-6 h-6 rounded-full bg-white/30 text-white text-xs disabled:opacity-30 hover:bg-white/50 transition-colors"
-              >
-                ◀
-              </button>
+            <div className="flex items-center justify-center gap-2 z-10">
+              <NavBtn onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>◀</NavBtn>
               {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i)}
-                  className={`w-6 h-6 rounded-full text-xs font-bold transition-all ${
-                    i === page
-                      ? "bg-yellow-400 text-black scale-110"
-                      : "bg-white/30 text-white hover:bg-white/50"
+                <button key={i} onClick={() => setPage(i)}
+                  className={`w-7 h-7 rounded-full text-xs font-black transition-all ${
+                    i === page ? "text-black scale-110 shadow" : "text-white hover:scale-105"
                   }`}
-                >
+                  style={{ background: i === page ? "#FFD700" : "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.3)" }}>
                   {i + 1}
                 </button>
               ))}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                disabled={page === totalPages - 1}
-                className="w-6 h-6 rounded-full bg-white/30 text-white text-xs disabled:opacity-30 hover:bg-white/50 transition-colors"
-              >
-                ▶
-              </button>
+              <NavBtn onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1}>▶</NavBtn>
             </div>
           )}
         </div>
 
-        {/* ─── 오른쪽: 선택된 프로젝트 정보 ─── */}
-        <div
-          className="w-56 shrink-0 rounded-xl border border-white/40 p-4 backdrop-blur-md flex flex-col gap-3 self-center"
-          style={{ background: "rgba(255,255,255,0.85)" }}
-        >
-          {/* 레벨 */}
-          <div className="flex items-center gap-2">
-            <span className="text-yellow-500 text-lg">★</span>
-            <span
-              className="text-2xl font-black"
-              style={{ color: levelColor(selected.level) }}
-            >
-              Lv. {selected.level}
-            </span>
+        {/* ── 오른쪽: 선택 프로젝트 정보 패널 ── */}
+        <div className="w-52 shrink-0 self-center rounded overflow-hidden" style={{
+          background: "linear-gradient(180deg, #EAF4FF 0%, #FFFFFF 12%)",
+          border: "1px solid #8BB8E8",
+          boxShadow: "0 8px 32px rgba(0,50,130,0.35), inset 0 1px 0 rgba(255,255,255,0.9)"
+        }}>
+          {/* 헤더 */}
+          <div className="px-3 py-2 flex items-center gap-1.5" style={{
+            background: "linear-gradient(180deg,#2E6CC8 0%,#1A4A99 100%)",
+            borderBottom: "1px solid #0A3080"
+          }}>
+            <span className="text-yellow-300 text-sm">★</span>
+            <span className="text-white text-sm font-black">Lv. {selected.level}</span>
           </div>
 
-          {/* 아이콘 + 이름 */}
-          <div className="text-center">
-            <div className="text-5xl mb-1">{selected.icon}</div>
-            <p className="text-gray-800 font-black text-base">{selected.title}</p>
-            <p className="text-gray-400 text-xs">{selected.jobClass}</p>
+          {/* 로고 + 이름 */}
+          <div className="flex flex-col items-center px-3 pt-3 pb-2">
+            {/* 로고 이미지 */}
+            <div className="relative w-20 h-20 mb-2 rounded overflow-hidden" style={{
+              background: "linear-gradient(135deg,#EAF4FF,#D0E8FF)",
+              border: "1px solid #8BB8E8"
+            }}>
+              <Image src={selected.cover} alt={selected.title} fill className="object-contain p-1.5" />
+            </div>
+            <p className="text-gray-900 font-black text-base text-center">{selected.title}</p>
+            <p className="text-blue-500 text-[11px] flex items-center gap-1 mt-0.5">
+              <span className="inline-block w-2 h-2 rounded-full" style={{ background: selected.color }} />
+              {selected.jobClass}
+            </p>
           </div>
 
-          <div className="h-px bg-gray-200" />
+          <div className="mx-3" style={{ height: 1, background: "#D0E4F8" }} />
 
           {/* 전투력 */}
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-500 font-medium">전투력</span>
-            <span className="text-orange-500 font-black">{formatPower(selected.power)}</span>
+          <div className="px-3 py-2 flex items-center justify-between">
+            <span className="text-gray-400 text-xs">전투력</span>
+            <span className="text-orange-500 font-black text-xs">{formatPower(selected.power)}</span>
           </div>
 
-          {/* 기술 스택 */}
-          <div>
-            <p className="text-gray-500 text-xs mb-1.5">기술 스택</p>
-            <div className="flex flex-wrap gap-1">
-              {Object.values(selected.tech).flat().map((tech: string) => (
-                <span
-                  key={tech}
-                  className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
-                  style={{ background: selected.color }}
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
+          <div className="mx-3" style={{ height: 1, background: "#D0E4F8" }} />
+
+          {/* 기간 */}
+          <div className="px-3 py-2 flex items-center justify-between">
+            <span className="text-gray-400 text-xs">기간</span>
+            <span className="text-gray-700 font-bold text-xs">{selected.moveStyle}</span>
           </div>
 
-          {/* 설명 */}
-          <p className="text-gray-600 text-[11px] leading-relaxed">{selected.subtitle}</p>
+          <div className="mx-3" style={{ height: 1, background: "#D0E4F8" }} />
 
-          <div className="h-px bg-gray-200" />
+          {/* 서버 */}
+          <div className="px-3 py-2 flex items-center justify-between">
+            <span className="text-gray-400 text-xs">서버</span>
+            <span className="text-blue-600 font-bold text-xs">조준형 월드</span>
+          </div>
 
           {/* 버튼들 */}
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => onSelectProject(selected)}
-              className="w-full py-2 rounded-lg text-white text-xs font-black text-center transition-all hover:scale-105"
-              style={{ background: `linear-gradient(135deg, ${selected.color}, ${selected.color}bb)` }}
-            >
-              🎮 자세히 보기
+          <div className="px-3 pb-3 pt-2 flex flex-col gap-2">
+            <button onClick={() => onSelectProject(selected)}
+              className="w-full py-2.5 rounded-full text-white text-xs font-black tracking-wide transition-all hover:brightness-110 active:scale-95"
+              style={{
+                background: "linear-gradient(180deg,#6EC8FF 0%,#1C7FE0 100%)",
+                border: "1px solid #0B5CB8",
+                boxShadow: "0 2px 6px rgba(30,111,224,0.5), inset 0 1px 0 rgba(255,255,255,0.3)",
+                textShadow: "0 1px 2px rgba(0,0,0,0.3)"
+              }}>
+              게임 시작
             </button>
             {selected.links.repo && (
-              <a
-                href={selected.links.repo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2 rounded-lg text-xs font-black text-center transition-all hover:scale-105 border border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                🐙 GitHub 보기
+              <a href={selected.links.repo} target="_blank" rel="noopener noreferrer"
+                className="w-full py-2 rounded-full text-xs font-bold text-center text-gray-600 hover:bg-gray-100 transition-colors"
+                style={{ border: "1px solid #C0D4E8" }}>
+                🐙 GitHub
               </a>
             )}
           </div>
         </div>
       </div>
 
-      {/* ─── 하단 네비게이션 바 ─── */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-11 flex items-center justify-between px-4 border-t border-white/20"
-        style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }}
-      >
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 text-white/80 text-xs hover:text-white transition-colors font-bold"
-        >
-          ◀ 이전 월드로
+      {/* ── 하단 네비게이션 ── */}
+      <div className="absolute bottom-0 left-0 right-0 h-11 flex items-center justify-between px-4"
+        style={{ background: "rgba(0,0,0,0.6)", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <button onClick={onBack}
+          className="flex items-center gap-1.5 text-white/80 text-xs font-bold hover:text-white transition-colors">
+          ◀ 이전으로
         </button>
-
-        <div className="flex gap-3">
-          <button className="text-white/50 text-xs cursor-not-allowed">⚙️ 캐릭터 관리</button>
-          <button className="text-white/50 text-xs cursor-not-allowed">🌍 월드 리프</button>
-          <button className="text-white/50 text-xs cursor-not-allowed">+ 새 프로젝트</button>
+        <div className="flex gap-4">
+          {["⚙️ 캐릭터 관리", "🌍 월드 리프", "+ 새 프로젝트"].map(t => (
+            <span key={t} className="text-white/30 text-xs cursor-not-allowed">{t}</span>
+          ))}
         </div>
-
-        <div className="text-white/30 text-[10px]">Ver. 1.0.0</div>
+        <span className="text-white/20 text-[10px] tracking-widest">Ver. 1.2.4.12.3</span>
       </div>
     </div>
   );
 }
 
-/* ─── 플랫폼 한 줄 컴포넌트 ─── */
-function PlatformRow({
-  projects,
-  selected,
-  onSelect,
-  levelColor,
-}: {
-  projects: Project[];
-  selected: Project;
-  onSelect: (p: Project) => void;
-  levelColor: (n: number) => string;
+/* ── 플랫폼 행 ── */
+function PlatformRow({ projects, selected, onSelect, levelColor }: {
+  projects: Project[]; selected: Project;
+  onSelect: (p: Project) => void; levelColor: (n: number) => string;
 }) {
   return (
-    <div className="relative z-10">
+    <div className="relative z-10 px-4">
       {/* 캐릭터들 */}
-      <div className="flex justify-center gap-6 pb-1">
-        {projects.map((project) => (
-          <button
-            key={project.id}
-            onClick={() => onSelect(project)}
-            className="flex flex-col items-center group focus:outline-none"
-          >
-            {/* 선택 화살표 */}
-            <div
-              className={`text-yellow-400 text-lg mb-0.5 transition-all ${
-                selected.id === project.id ? "opacity-100 animate-bounce" : "opacity-0"
-              }`}
-            >
-              ▼
-            </div>
-
-            {/* 캐릭터 아이콘 */}
-            <div
-              className={`w-16 h-20 rounded-lg flex flex-col items-center justify-center transition-all duration-200 ${
-                selected.id === project.id
-                  ? "scale-110"
-                  : "opacity-80 group-hover:opacity-100 group-hover:scale-105"
-              }`}
-              style={{
-                background:
-                  selected.id === project.id
-                    ? `linear-gradient(135deg, ${project.color}33, ${project.color}11)`
-                    : "rgba(255,255,255,0.2)",
-                border: `2px solid ${selected.id === project.id ? project.color : "rgba(255,255,255,0.3)"}`,
-                boxShadow:
-                  selected.id === project.id
-                    ? `0 0 20px ${project.color}66`
-                    : "none",
-              }}
-            >
-              <span className="text-3xl">{project.icon}</span>
-            </div>
-          </button>
-        ))}
-        {/* 빈 슬롯 채우기 */}
-        {Array.from({ length: 3 - projects.length }).map((_, i) => (
-          <div key={`empty-${i}`} className="w-16 h-20 opacity-0" />
+      <div className="flex justify-center gap-8 pb-1 items-end">
+        {projects.map(p => {
+          const isSelected = selected.id === p.id;
+          return (
+            <button key={p.id} onClick={() => onSelect(p)}
+              className="flex flex-col items-center gap-1 focus:outline-none group">
+              {/* 선택 화살표 */}
+              <div className={`transition-all text-base ${isSelected ? "opacity-100 animate-bounce" : "opacity-0"}`}
+                style={{ color: "#FFD700", textShadow: "0 0 8px #FFD700" }}>▼</div>
+              {/* 로고 카드 */}
+              <div className="relative w-20 h-24 rounded overflow-hidden transition-all duration-200"
+                style={{
+                  background: isSelected
+                    ? `linear-gradient(160deg, ${p.color}22, ${p.color}0A)`
+                    : "linear-gradient(160deg,#EAF4FF,#FFFFFF)",
+                  border: `2px solid ${isSelected ? p.color : "#C8DCF0"}`,
+                  boxShadow: isSelected ? `0 0 16px ${p.color}88, 0 4px 12px rgba(0,0,0,0.2)` : "0 2px 8px rgba(0,0,0,0.1)",
+                  transform: isSelected ? "scale(1.08)" : undefined,
+                  opacity: isSelected ? 1 : 0.85,
+                }}>
+                <Image src={p.cover} alt={p.title} fill className="object-contain p-2" />
+                {/* status badge */}
+                <div className="absolute top-1 left-1 px-1 py-0.5 rounded text-[7px] font-black text-white"
+                  style={{ background: p.status === "Official Release" ? "#1C7FE0" : p.status === "Open Beta" ? "#27AE60" : "#D97706" }}>
+                  {p.status === "Official Release" ? "RELEASE" : p.status === "Open Beta" ? "BETA" : "EA"}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+        {Array.from({ length: Math.max(0, 3 - projects.length) }).map((_, i) => (
+          <div key={`e${i}`} className="w-20 h-24 opacity-0" />
         ))}
       </div>
 
-      {/* 플랫폼 */}
-      <div
-        className="h-4 rounded mx-6"
-        style={{
-          background: "linear-gradient(180deg, #C4931F 0%, #8B6014 60%, #5E3D0A 100%)",
-          borderTop: "3px solid #E8B84B",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-        }}
-      />
+      {/* 나무 플랫폼 */}
+      <div className="h-5 rounded-sm mx-2 relative" style={{
+        background: "linear-gradient(180deg,#D4A836 0%,#B8861C 30%,#8B6014 70%,#5E3D0A 100%)",
+        borderTop: "3px solid #F0C840",
+        borderLeft: "2px solid #C8941A",
+        borderRight: "2px solid #6B4A0F",
+        boxShadow: "0 6px 16px rgba(0,0,0,0.45)"
+      }}>
+        {/* 나무 결 */}
+        {[20, 40, 60, 80].map(x => (
+          <div key={x} className="absolute top-0 bottom-0 w-px opacity-20" style={{ left: `${x}%`, background: "#5E3D0A" }} />
+        ))}
+      </div>
 
       {/* 이름 + 레벨 */}
-      <div className="flex justify-center gap-6 mt-1">
-        {projects.map((project) => (
-          <div key={project.id} className="w-16 text-center">
-            <p
-              className="text-white text-[11px] font-black truncate drop-shadow"
-              style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
-            >
-              {project.title}
+      <div className="flex justify-center gap-8 mt-1.5">
+        {projects.map(p => (
+          <div key={p.id} className="w-20 text-center">
+            <p className="text-white text-[11px] font-black truncate"
+              style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6)" }}>
+              {p.title}
             </p>
-            <p
-              className="text-[10px] font-bold drop-shadow"
-              style={{ color: levelColor(project.level), textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
-            >
-              Lv.{project.level}
+            <p className="text-[10px] font-bold" style={{ color: levelColor(p.level), textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+              Lv.{p.level}
             </p>
           </div>
         ))}
-        {Array.from({ length: 3 - projects.length }).map((_, i) => (
-          <div key={`empty-label-${i}`} className="w-16" />
+        {Array.from({ length: Math.max(0, 3 - projects.length) }).map((_, i) => (
+          <div key={`el${i}`} className="w-20" />
         ))}
       </div>
     </div>
   );
 }
 
-/* ─── 구름 컴포넌트 ─── */
-function Cloud({ x, y, scale }: { x: number; y: number; scale: number }) {
+function NavBtn({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) {
   return (
-    <div
-      className="absolute pointer-events-none"
-      style={{ left: `${x}%`, top: `${y}%`, transform: `scale(${scale})` }}
-    >
-      <div className="relative">
-        <div className="w-20 h-10 rounded-full bg-white/80 blur-sm" />
-        <div className="absolute -top-4 left-4 w-12 h-10 rounded-full bg-white/80 blur-sm" />
-        <div className="absolute -top-2 left-10 w-10 h-8 rounded-full bg-white/80 blur-sm" />
+    <button onClick={onClick} disabled={disabled}
+      className="w-7 h-7 rounded-full text-white text-xs font-black disabled:opacity-30 hover:brightness-125 transition-all"
+      style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.3)" }}>
+      {children}
+    </button>
+  );
+}
+
+function Cloud({ x, y, w }: { x: number; y: number; w: number }) {
+  return (
+    <div className="absolute pointer-events-none" style={{ left: `${x}%`, top: `${y}%` }}>
+      <div className="relative" style={{ width: w }}>
+        <div className="rounded-full bg-white" style={{ width: w, height: w * 0.4, filter: "blur(4px)", opacity: 0.85 }} />
+        <div className="absolute rounded-full bg-white" style={{ width: w * 0.5, height: w * 0.45, top: -w * 0.18, left: w * 0.15, filter: "blur(3px)", opacity: 0.85 }} />
+        <div className="absolute rounded-full bg-white" style={{ width: w * 0.45, height: w * 0.4, top: -w * 0.14, left: w * 0.42, filter: "blur(3px)", opacity: 0.85 }} />
       </div>
     </div>
   );
