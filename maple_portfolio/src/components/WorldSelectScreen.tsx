@@ -123,17 +123,26 @@ export default function WorldSelectScreen({ onEnter }: WorldSelectScreenProps) {
             {/* 구분선 */}
             <div className="mx-3 my-2" style={{ height: "1px", background: "#D0E4F8" }} />
 
-            {/* 스탯 */}
-            <div className="px-3 pb-3 space-y-1.5">
-              {[
-                { label: "전투력", value: "18,500" },
-                { label: "서버",   value: "조준형 월드", blue: true },
-              ].map(row => (
-                <div key={row.label} className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400">{row.label}</span>
-                  <span className={`font-bold ${row.blue ? "text-blue-600" : "text-gray-800"}`}>{row.value}</span>
-                </div>
-              ))}
+            {/* 연락처 링크 */}
+            <div className="px-3 pb-3 space-y-2">
+              <a href="https://github.com/Jojunhyeong" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-xs text-gray-600 hover:text-gray-900 transition-colors group">
+                <span className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] shrink-0"
+                  style={{ background: "#181717" }}>G</span>
+                <span className="group-hover:underline truncate">github.com/Jojunhyeong</span>
+              </a>
+              <a href="https://velog.io/@jojh0323" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-xs text-gray-600 hover:text-gray-900 transition-colors group">
+                <span className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] shrink-0"
+                  style={{ background: "#20C997" }}>V</span>
+                <span className="group-hover:underline truncate">velog.io/@jojh0323</span>
+              </a>
+              <a href="mailto:jojh0323@gmail.com"
+                className="flex items-center gap-2 text-xs text-gray-600 hover:text-gray-900 transition-colors group">
+                <span className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] shrink-0"
+                  style={{ background: "#EA4335" }}>@</span>
+                <span className="group-hover:underline truncate">jojh0323@gmail.com</span>
+              </a>
             </div>
           </div>
 
@@ -173,30 +182,33 @@ export default function WorldSelectScreen({ onEnter }: WorldSelectScreenProps) {
           </div>
 
           {/* 패널 내용 */}
-          <div className="flex-1 p-5 flex flex-col gap-4">
-            {/* 타이틀 */}
-            <div className="pb-3" style={{ borderBottom: "1px solid #D0E4F8" }}>
-              <p className="text-gray-800 font-bold text-sm leading-relaxed">
-                안녕하세요! 사용자 경험을 중요하게 생각하는
-                <span className="text-blue-600 font-black"> 프론트엔드 개발자 조준형</span>입니다.
+          <div className="flex-1 flex flex-col items-center justify-center px-8 py-6 text-center gap-5">
+            {/* 인용 장식 */}
+            <div className="text-4xl text-blue-200 font-serif leading-none select-none">"</div>
+
+            {/* 자기소개 본문 */}
+            <div className="space-y-4 max-w-lg">
+              <p className="text-gray-700 text-sm leading-[1.9] font-medium">
+                성장 과정은 하나의 서비스가 출시되고 개선되며 안정화되는 흐름과
+                <span className="text-blue-600 font-bold"> 닮아 있다</span>고 생각합니다.
+              </p>
+              <p className="text-gray-700 text-sm leading-[1.9] font-medium">
+                협업 과정에서는 팀과 문제를 함께 정의하고,
+                새로운 시도를 <span className="text-blue-600 font-bold">코드로 검증</span>하는 과정을 중요하게 여깁니다.
+              </p>
+              <p className="text-gray-700 text-sm leading-[1.9] font-medium">
+                이러한 경험과 고민을 <span className="text-blue-600 font-bold">기록으로 남기며</span> 변화를 정리해 왔습니다.
               </p>
             </div>
 
-            {/* 내용 */}
-            <div className="space-y-2.5 text-sm text-gray-600 leading-relaxed flex-1">
-              <p>• 메이플스토리를 좋아하는 만큼, 개발에서도 <span className="text-blue-600 font-bold">꾸준한 성장</span>과 즐거움을 추구합니다.</p>
-              <p>• 각 프로젝트는 하나의 캐릭터입니다. 레벨이 높을수록 <span className="text-blue-600 font-bold">난이도가 높고</span>, 전투력은 기술 스택의 복잡도를 의미합니다.</p>
-              <p>• 아래 기술 스택은 실제 프로젝트에서 사용한 기술들입니다.</p>
-            </div>
+            {/* 닫는 인용 장식 */}
+            <div className="text-4xl text-blue-200 font-serif leading-none select-none rotate-180">"</div>
 
-            {/* 공지 박스 */}
-            <div className="rounded p-3" style={{ background: "#FFF8E8", border: "1px solid #F0D070" }}>
-              <p className="text-amber-700 text-xs font-bold mb-1">📢 업데이트 안내</p>
-              <p className="text-amber-600 text-xs leading-relaxed">
-                현재 포트폴리오는 지속적으로 업데이트 중입니다.
-                새로운 프로젝트가 계속 추가될 예정입니다!
-              </p>
-            </div>
+            {/* 구분선 */}
+            <div className="w-16 h-px" style={{ background: "#D0E4F8" }} />
+
+            {/* 서명 */}
+            <p className="text-gray-400 text-xs tracking-widest">— 프론트엔드 개발자 조준형 —</p>
           </div>
         </div>
 
